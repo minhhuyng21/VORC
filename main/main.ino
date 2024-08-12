@@ -1,8 +1,8 @@
-#include <PS2X_lib.h> 
+#include <PS2X_lib.h>  // Thư viện điều khiển ps2
 #include <Wire.h> //thư viện I2c của Arduino, do PCA9685 sử dụng chuẩn giao tiếp i2c nên thư viện này bắt buộc phải khai báo 
 #include <Adafruit_PWMServoDriver.h> // thư viện PCA9685
-#include <Adafruit_TCS34725.h>
-#include <Servo.h> 
+#include <Adafruit_TCS34725.h> // thư viện của cảm biến màu sắc
+#include <Servo.h> // thư viện servo
 
 #define PS2_DAT 13
 #define PS2_CMD 11
@@ -10,18 +10,19 @@
 #define PS2_CLK 12
 #define pressures false
 #define rumble false
-PS2X ps2x;
-int error = 0;
+PS2X ps2x; // khoi tao ps2
+int error = 0; 
 byte type = 0;
 byte vibrate = 0;
 int A;
+
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_154MS, TCS34725_GAIN_4X);
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(); // Khởi tạo class của thư viện với địa chỉ gốc
 Servo servo180; 
 Servo servo360;
-const int trig = 24;   
-const int echo = 23;  
-const int SHOOT = 5;
+const int trig = 24;   // trig của hcsr04
+const int echo = 23;   // echio của hcsr04
+const int SHOOT = 5;   
 unsigned long duration; // biến đo thời gian
 int distance;           // biến lưu khoảng cách
 
@@ -30,8 +31,9 @@ void setup() {
   Serial.begin(57600);
   delay(300);
   error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
-  pinMode(trig,OUTPUT);   
-  pinMode(echo,INPUT);
+
+  pinMode(trig,OUTPUT);   // pinmode hcsr04
+  pinMode(echo,INPUT);    // pinmode hcsr04
 
   // setup motordc bắn
   pwm.begin(); //khởi tạo PCA9685 
@@ -40,8 +42,8 @@ void setup() {
   Wire.setClock(400000); // cài đặt tốc độ giao tiếp i2c ở tốc độ cao nhất(400 Mhz). Hàm này có thể bỏ qua nếu gặp lỗi hoặc không có nhu cầu tử dụng I2c tốc độ cao
 
   // setup servo
-  servo180.attach(30);
-  servo360.attach(15); 
+  servo180.attach(30); // chân số 30
+  servo360.attach(15); // chan số 15
 
   //setup tcs
   if (tcs.begin()) 
@@ -65,16 +67,17 @@ void loop() {
   if (A==7) {nuttamgiac();}
   if (A==8) {nutX();}
   
-  if(color()) servo180.write(60);
-  else servo180.write(0);
+  if(color()) servo180.write(60); // neu mau trắng thì chỉnh lên 60 độ
+  else servo180.write(0); // đen thì chỉnh góc 0 độ
 
+  // khoảng cách phù thì có thể điều chỉnh góc độ
   if(measure() <= 150){
-    if (A==9) {R1();}
-    if (A==10) {R2();}
-    if (A==11) {L1();}
-    if (A==12) {L2();}
+    if (A==9) {R1();} // chinh goc len
+    if (A==10) {R2();} // chinh goc xuong
+    if (A==11) {L1();} // chinh goc xoay trai
+    if (A==12) {L2();} // chinh goc xoay phai
   }
-  if (A==0) {reset();}
+  if (A==0) {reset();} // khong nhan tinh hieu tra ve mac dinh
 }
 void ps2_control(){
   ps2x.read_gamepad(false, speed_motor); // đọc xog chỉnh tốc độ motor thành "motor_speed"  
@@ -132,31 +135,34 @@ void moveright(){
 
 }
 void nuttron(){
-  pwm.setPWM(shoot, 0, 4096);
+  pwm.setPWM(8, 0, 4096); //chân số 8 set chiều dương là PWM 100%
+  pwm.setPWM(9, 0, 0);    //chân số 9 set chiều âm 
+  //điều khiển kênh 8 và 9 của động cơ 1
   Serial.println("shooting");
 }
 void nutvuong(){
 
 }
 void nuttamgiac(){
-  servo180.write(0);
+  servo180.write(0); // chinh góc ve 0 độ
 }
 void nutX(){
 
 }
 void R1(int goc){
-  servo180.write(goc+1);
+  servo180.write(goc+1); // chinh goc len
 }
 void R2(int goc){
-  servo180.write(goc-1);
+  servo180.write(goc-1); // chinh goc xuong
 }
 void L1(int goc){
-  servo360.write(goc+1); 
+  servo360.write(goc+1); // chinh goc xoay trai
 }
 void L2(int goc){
-  servo360.write(goc-1);
+  servo360.write(goc-1); // chinh goc xoay phai
 }
 void reset(){
+  // mac dinh goc bắn 60 độ và góc ngang thẳng 
   servo180.write(60);
   servo360.write(0); 
 }
@@ -168,7 +174,7 @@ bool color(){
   uint16_t avg = (r + g + b) / 3;
   
   // Ngưỡng để phân loại màu đen và trắng
-  uint16_t threshold = 300; // Bạn có thể điều chỉnh giá trị này
+  uint16_t threshold = 300; // có thể điều chỉnh giá trị này
   
   if (avg < threshold) {
     Serial.println("Màu: Đen");
