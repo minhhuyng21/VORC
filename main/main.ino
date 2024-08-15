@@ -58,7 +58,7 @@ void setup() {
 }
 void loop() {  
   int goc_180 = 0;
-  int goc_360 = 0;
+  int goc_360 = 1500;
   ps2_control();
   if (A==1) {moveforward();}
   if (A==2) {movebackward();}
@@ -160,12 +160,12 @@ void R2(int goc){
   goc--;
 }
 void L1(int &goc){
-  pwm.writeMicroseconds(servo3601, goc + 11); // chinh goc xoay trai
-  goc += 11;
+  goc += 8; // do pwm tu 1000 -> 2000 nen de goc tăng lên 1 độ thì sung tăng 8
+  pwm.writeMicroseconds(servo3601, goc); // chinh goc xoay trai
 }
 void L2(int &goc){
-  pwm.writeMicroseconds(servo3601, goc - 11); // chinh goc xoay trai
-  goc -= 11;
+  goc -= 8;// do pwm tu 1000 -> 2000 nen de goc giảm bớt 1 độ thì sung giảm 8
+  pwm.writeMicroseconds(servo3601, goc ); // chinh goc xoay trai
 }
 void reset(){
   // mac dinh goc bắn 60 độ và góc ngang thẳng 
