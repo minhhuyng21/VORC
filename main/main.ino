@@ -68,6 +68,7 @@ void loop() {
   if (A==6) {nutvuong();}
   if (A==7) {nuttamgiac();}
   if (A==8) {nutX();}
+  if (A==13) {conveyor();}
   
   if(color()) servo180.write(60); // neu mau trắng thì chỉnh lên 60 độ
   else servo180.write(0); // đen thì chỉnh góc 0 độ
@@ -119,6 +120,8 @@ void ps2_control(){
   else if(ps2x.Button(PSB_L2)){
     A=12;
   }
+  else if(ps2x.Button(PSB_GREEN) && ps2x.Button(PSB_BLUE)){
+    A = 13;}
   else {A=0;} 
   delay(50);
 
@@ -185,6 +188,9 @@ bool color(){
   }
   Serial.println("Màu: Trắng");
   return true;
+}
+void conveyor(){
+
 }
 
 long measure() {
