@@ -151,17 +151,21 @@ void nuttamgiac(){
 void nutX(){
 
 }
-void R1(int goc){
+void R1(int &goc){
   servo180.write(goc+1); // chinh goc len
+  goc++;
 }
 void R2(int goc){
   servo180.write(goc-1); // chinh goc xuong
+  goc--;
 }
-void L1(int goc){
+void L1(int &goc){
   pwm.writeMicroseconds(servo3601, goc + 11); // chinh goc xoay trai
+  goc += 11;
 }
-void L2(int goc){
-  pwm.writeMicroseconds(servo3601, goc + 11); // chinh goc xoay trai
+void L2(int &goc){
+  pwm.writeMicroseconds(servo3601, goc - 11); // chinh goc xoay trai
+  goc -= 11;
 }
 void reset(){
   // mac dinh goc bắn 60 độ và góc ngang thẳng 
