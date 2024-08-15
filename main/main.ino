@@ -155,17 +155,15 @@ void R1(int &goc){
   servo180.write(goc+1); // chinh goc len
   goc++;
 }
-void R2(int goc){
+void R2(int &goc){
   servo180.write(goc-1); // chinh goc xuong
   goc--;
 }
-void L1(int &goc){
-  goc += 8; // do pwm tu 1000 -> 2000 nen de goc tăng lên 1 độ thì sung tăng 8
-  pwm.writeMicroseconds(servo3601, goc); // chinh goc xoay trai
+void L1(){
+  pwm.writeMicroseconds(servo3601, 1000); // chinh goc xoay trai
 }
-void L2(int &goc){
-  goc -= 8;// do pwm tu 1000 -> 2000 nen de goc giảm bớt 1 độ thì sung giảm 8
-  pwm.writeMicroseconds(servo3601, goc ); // chinh goc xoay trai
+void L2(){
+  pwm.writeMicroseconds(servo3601, 1000 ); // chinh goc xoay trai
 }
 void reset(){
   // mac dinh goc bắn 60 độ và góc ngang thẳng 
