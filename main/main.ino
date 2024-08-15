@@ -83,7 +83,7 @@ void loop() {
   if (A==0) {reset();} // khong nhan tinh hieu tra ve mac dinh
 }
 void ps2_control(){
-  ps2x.read_gamepad(false, speed_motor); // đọc xog chỉnh tốc độ motor thành "motor_speed"  
+  ps2x.read_gamepad(false, flase);
   if(ps2x.Button(PSB_PAD_UP)){
     A=1;
   }
