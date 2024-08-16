@@ -4,8 +4,8 @@
 #include <Adafruit_TCS34725.h> // thư viện của cảm biến màu sắc
 #include <Servo.h> // thư viện servo
 
-#define servo3601 2
-#define servo3602 3
+#define servo3601 15
+#define serco3602 
 #define PS2_DAT 1
 #define PS2_CMD 2
 #define PS2_SEL 5
@@ -43,7 +43,7 @@ void setup() {
   Wire.setClock(400000); // cài đặt tốc độ giao tiếp i2c ở tốc độ cao nhất(400 Mhz). Hàm này có thể bỏ qua nếu gặp lỗi hoặc không có nhu cầu tử dụng I2c tốc độ cao
 
   // setup servo
-  servo180.attach(7); // chân số 7
+  servo180.attach(30); // chân số 30
 
   //setup tcs
   if (tcs.begin()) 
@@ -58,40 +58,16 @@ void setup() {
 }
 void loop() {  
   int goc_180 = 0;
-  bool stop_move = true
-  bool stop_turret = true
-  bool stop_intake = true
-  bool stop_bang_chuyen = true
+  int goc_360 = 1500;
   ps2_control();
   if (A==1) {moveforward();}
-  else if (stop_move) {stop_move();} 
   if (A==2) {movebackward();}
-  else if (stop_move) {stop_move();} 
   if (A==3) {moveleft();}
-  else if (stop_move) {stop_move();} 
   if (A==4) {moveright();}
-  else if (stop_move) {stop_move();} 
   if (A==5) {nuttron();}
-  else {
-    pwm.setPWM(8, 0, 0);
-    pwm.setPWM(9, 0, 0);
-  } 
   if (A==6) {nutvuong();}
-  else if(stop_bang_chuyen){
-    pwm.setPWM(10, 0, 0);
-    pwm.setPWM(11, 0, 0);
-  }
   if (A==7) {nuttamgiac();}
   if (A==8) {nutX();}
-  else if (stop_intake){
-    pwm.setPWM(servo3602, 0 , 1500)
-  }
-  if (A==13) {reverse_conveyor_and_intake();}
-  else if(stop_intake && stop_bang_chuyen) {
-    pwm.setPWM(10, 0, 0);
-    pwm.setPWM(11, 0, 0);
-    pwm.setPWM(servo3602, 0, 1500)
-  }
   
   if(color()) servo180.write(60); // neu mau trắng thì chỉnh lên 60 độ
   else servo180.write(0); // đen thì chỉnh góc 0 độ
@@ -100,40 +76,33 @@ void loop() {
   if(measure() <= 150){
     if (A==9) {R1(goc_180);} // chinh goc len
     if (A==10) {R2(goc_180);} // chinh goc xuong
-    if (A==11) {L1();} else if (stop_turret) {stop_turret();} // chinh goc xoay trai
-    if (A==12) {L2();} else if (stop_turret) {stop_turret();} // chinh goc xoay phai
+    if (A==11) {L1(goc_360);} // chinh goc xoay trai
+    if (A==12) {L2(goc_360);} // chinh goc xoay phai
   }
   if (A==0) {reset();} // khong nhan tinh hieu tra ve mac dinh
 }
-
-void ps2_control(bool &stop_move, bool &stop_turret, bool &stop_bang_chuyen, bool &stop_intake){
-  ps2x.read_gamepad(false, false);
+void ps2_control(){
+  ps2x.read_gamepad(false, speed_motor); // đọc xog chỉnh tốc độ motor thành "motor_speed"  
   if(ps2x.Button(PSB_PAD_UP)){
     A=1;
-    stop_move = false
   }
   else if(ps2x.Button(PSB_PAD_DOWN)){
     A=2;
-    stop_move = false
   }
   else if(ps2x.Button(PSB_PAD_LEFT)){
     A=3;
-    stop_move = false
   }
   else if(ps2x.Button(PSB_PAD_RIGHT)){
     A=4;
-    stop_move = false
   }
   else if(ps2x.Button(PSB_RED)){ // nút tròn
     A=5;
   }
   else if(ps2x.Button(PSB_PINK)){ // nút vuông
     A=6;
-    stop_intake = false
   }
   else if(ps2x.Button(PSB_GREEN)){ // nút tam giác
     A=7;
-    stop_bang_chuyen = false
   }
   else if(ps2x.Button(PSB_BLUE)){ // nút X
     A=8;
@@ -146,74 +115,42 @@ void ps2_control(bool &stop_move, bool &stop_turret, bool &stop_bang_chuyen, boo
   }
   else if(ps2x.Button(PSB_L1)){
     A=11;
-    stop_turret = false
   }
   else if(ps2x.Button(PSB_L2)){
     A=12;
-    stop_turret = false
   }
-  else if(ps2x.Button(PSB_GREEN) && ps2x.Button(PSB_BLUE)){
-    A = 13;}
   else {A=0;} 
   delay(50);
 
 }
 // thêm các lệnh điều khiển, chức năng vào các nút
 void moveforward(){
-  pwm.setPWM(12, 0, 4096); //động cơ di chuyển 1:chân 12 dương, 13 âm
-  pwm.setPWM(13, 0, 0);    
-  pwm.setPWM(14, 0, 0); // động cơ di chuyển 2: chân 14 dương, 15 âm
-  pwm.setPWM(15, 0, 4096);    
-}
 
+}
 void movebackward(){
-  pwm.setPWM(12, 0, 0); 
-  pwm.setPWM(13, 0, 4096);    
-  pwm.setPWM(14, 0, 4096); 
-  pwm.setPWM(15, 0, 0); 
-}
 
+}
 void moveleft(){
-  pwm.setPWM(12, 0, 4096); 
-  pwm.setPWM(13, 0, 0);    
-  pwm.setPWM(14, 0, 4096); 
-  pwm.setPWM(15, 0, 0);
-}
 
+}
 void moveright(){
-  pwm.setPWM(12, 0, 0); 
-  pwm.setPWM(13, 0, 4096);    
-  pwm.setPWM(14, 0, 0); 
-  pwm.setPWM(15, 0, 4096);
-}
 
-void stop_move(){
-  pwm.setPWM(12, 0, 0); 
-  pwm.setPWM(13, 0, 0);    
-  pwm.setPWM(14, 0, 0); 
-  pwm.setPWM(15, 0, 0);
 }
-
 void nuttron(){
   pwm.setPWM(8, 0, 4096); //chân số 8 set chiều dương là PWM 100%
   pwm.setPWM(9, 0, 0);    //chân số 9 set chiều âm 
   //điều khiển kênh 8 và 9 của động cơ 1
   Serial.println("shooting");
 }
-
 void nutvuong(){
-  pwm.setPWM(10, 0, 4096);   //động cơ băng chuyền:chân 10 dương, 11 âm
-  pwm.setPWM(11, 0, 0);
-}
 
+}
 void nuttamgiac(){
   servo180.write(0); // chinh góc ve 0 độ
 }
-
 void nutX(){
-  pwm.setPWM(servo3602, 0 , 1000)
-}
 
+}
 void R1(int &goc){
   servo180.write(goc+1); // chinh goc len
   goc++;
@@ -222,22 +159,16 @@ void R2(int &goc){
   servo180.write(goc-1); // chinh goc xuong
   goc--;
 }
-
 void L1(){
   pwm.writeMicroseconds(servo3601, 1000); // chinh goc xoay trai
 }
 void L2(){
-  pwm.writeMicroseconds(servo3601, 2000); // chinh goc xoay trai
+  pwm.writeMicroseconds(servo3601, 1000 ); // chinh goc xoay trai
 }
-void stop_turret(){
-  pwm.writeMicroseconds(servo3601, 1500); // dừng turret
-}
-
 void reset(){
   // mac dinh goc bắn 60 độ và góc ngang thẳng 
   servo180.write(60);
 }
-
 bool color(){
   uint16_t r, g, b, c;
   tcs.getRawData(&r, &g, &b, &c);
@@ -254,12 +185,6 @@ bool color(){
   }
   Serial.println("Màu: Trắng");
   return true;
-}
-
-void reverse_conveyor_intake(){
-  pwm.setPWM(10, 0, 0);
-  pwm.setPWM(11, 0, 4096);
-  pwm.setPWM(servo3602, 0, 2000)
 }
 
 long measure() {
